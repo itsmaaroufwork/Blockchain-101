@@ -40,7 +40,7 @@ abi = compiled_sol["contracts"]["SimpleStorage.sol"]["SimpleStorage"]["abi"]
 
 w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8548"))
 chain_id = 1337
-my_address = "0x358461670D5609f1075Addd5e3749C355Fcf4041"
+my_address = "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1"
 private_key = os.getenv("PRIVATE_KEY")
 
 # create the contract in python
@@ -61,11 +61,12 @@ transaction = SimpleStorage.constructor().buildTransaction(
 singed_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
 # 3. Send a transaction
 # Send this signed transaction
+print("Deploying Contract...")
 tx_hash = w3.eth.send_raw_transaction(singed_txn.rawTransaction)
 
 # Wait for Block Confirmations
 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
+print("Deployed!")
 # Working with the contract, you always need
 # Contract Address
 # Contract ABI
@@ -79,6 +80,7 @@ Simple_Storage = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
 print(Simple_Storage.functions.retrieve().call())
 
 # 1. Build a transaction
+print("Updating Contract...")
 store_transaction = Simple_Storage.functions.store(5).buildTransaction(
     {
         "chainId": chain_id,
@@ -88,10 +90,12 @@ store_transaction = Simple_Storage.functions.store(5).buildTransaction(
     }
 )
 # 2. Sing a transaction
-singed_store_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
+singed_store_txn = w3.eth.account.sign_transaction(
+    store_transaction, private_key=private_key
+)
 # 3. Send a transaction
 send_store_tx = w3.eth.send_raw_transaction(singed_store_txn.rawTransaction)
 # Wait for Block Confirmations
 tx_receipt = w3.eth.wait_for_transaction_receipt(send_store_tx)
-
+print("Updated!")
 print("Done :D")
